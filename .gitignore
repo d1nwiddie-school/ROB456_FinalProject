@@ -1,0 +1,16 @@
+# Ignore ROS2 build artifacts
+build/
+install/
+log/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore workspace-specific locks if you aren't using them globally
+.vscode/
+uv.lock
