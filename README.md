@@ -29,7 +29,7 @@ Instead of working directly in `~/ROB456/ros_ws/src`, we are "stacking" this pro
 2. **Clone the repository:**
    *Note the dot `.` at the end—it is critical to clone the contents directly into /src.*
    ```bash
-   git clone <INSERT_YOUR_GITHUB_URL_HERE> .
+   git clone https://github.com/d1nwiddie-school/ROB456_FinalProject.git
    ```
 
 3. **Build the code:**
