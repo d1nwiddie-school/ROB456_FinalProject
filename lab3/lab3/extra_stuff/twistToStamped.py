@@ -23,7 +23,7 @@ class StampedRelay(Node): # this means inherit from Node
         
     # define the callback function
     def callback(self, msg): # main function that runs
-        self.get_logger().info(f"IN:  Lin.x={msg.linear.x:.2f}, Ang.z={msg.angular.z:.2f}")
+        # self.get_logger().info(f"IN:  Lin.x={msg.linear.x:.2f}, Ang.z={msg.angular.z:.2f}")
         out_msg = TwistStamped() # what does this do on its own like this?
         # I think this instantiates a TwistStamped object. Below we will define its std variables.
         out_msg.header.stamp = self.get_clock().now().to_msg()
@@ -32,7 +32,7 @@ class StampedRelay(Node): # this means inherit from Node
         # --> pretty sure this is just encoding the actual twist from /cmd_vel_raw
         self.pub.publish(out_msg)
         timestamp = out_msg.header.stamp.sec
-        self.get_logger().info(f"OUT: Published Stamped Twist at {timestamp}s")
+        # self.get_logger().info(f"OUT: Published Stamped Twist at {timestamp}s")
     
 # below is some boilerplate stuff:
 def main(args=None):
