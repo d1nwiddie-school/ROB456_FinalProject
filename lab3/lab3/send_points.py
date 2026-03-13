@@ -70,7 +70,7 @@ class SendPoints(Node):
             self.map_callback,
             10
         )
-		# NOTE: See ROS2 occupancy grid format in <reference/stuff>
+		# NOTE: See ROS2 occupancy grid format in <reference_stuff/...>
 
 		# Create a buffer to put the transform data in
 		self.tf_buffer = Buffer()
@@ -411,9 +411,24 @@ class SendPoints(Node):
 
 		# GUIDE: Subtract the origin position of the map and then divide by the resolution
 		#   Don't forget to cast to an int
-  		# YOUR CODE HERE
+
+		# get the resolution and origins from into (see details in from_image_to_map)
+		map_meters_per_pixel = info.resolution # := 0.05 (meters per pixel)
+
+		# this is the origin of the local scan map from the robot's blind eyes:
+		map_offset_x = info.origin.position.x
+		map_offset_y = info.origin.position.y
+
+		# now do the transform, which is the reverse of from_image_to_map():
+		world_x, world_y = pt_xy # img_x = pt_xy[0], etc.
+		im_u = (world_x - map_offset_x) / map_meters_per_pixel
+		im_v = (world_y - map_offset_y) / map_meters_per_pixel
+
+		# now cast as integers:
+		im_u = int(im_u)
+		im_v = int(im_v)
 		
-		# self.get_logger().info(f"before {pt_xy} after {im_u}, {im_v}")
+		self.get_logger().info(f"before {pt_xy} after {im_u}, {im_v}")
 		return (im_u, im_v)
 			
 	def from_image_to_map(self, map_msg : OccupancyGrid, pt_uv = (0, 0)):
@@ -425,9 +440,26 @@ class SendPoints(Node):
 
 		pt_x = 0.0
 		pt_y = 0.0
-		# GUIDE: Multiply by the resolution then add the origin position of the map 
-  # YOUR CODE HERE
-		# self.get_logger().info(f"before {pt_uv} after {pt_x}, {pt_y}")
+
+		# IMPORTANT DISTINCTION:
+		# what we are doing here is transforming the SLAM-generated MAP into the world/STAGE frame.
+		# what this method is NOT doing is converting the 1D L*W occupancy grid into image coordinates.
+		# 1: get origin and resolution out of the map. See map-message-example.txt for reference.
+		map_meters_per_pixel = info.resolution # e.g., 0.05 = 5cm pixels to work with. 
+		# ... DEV NOTE: maybe factor this in when writing close_enough? If the robot is 38cm = 7.6px wide, can we set that as a reasonable waypoint threshold?
+		map_offset_x = info.origin.position.x # the scanned /map's position rel. to world frame <x>
+		map_offset_y = info.origin.position.y # ... <y>
+
+		# on u & v:
+		# pt_uv = a point on the IMAGE
+		# pt_uv[0] = image x, COLUMN location (of pixel)
+		# pt_uv[1] = image y, ROW location
+		pt_x = pt_uv[0]
+		pt_y = pt_uv[1]
+		# now transform
+		pt_x =  (pt_x * map_meters_per_pixel) + map_offset_x
+		pt_y = (pt_y * map_meters_per_pixel) + map_offset_y
+
 		return (pt_x, pt_y)
 
 	# TODO: michael stuff
