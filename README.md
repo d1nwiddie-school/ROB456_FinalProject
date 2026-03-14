@@ -3,7 +3,8 @@ SLAMMageddon: the SLAMbulance, a SLAM, Bam, thank-you ma'am. Functional frontier
 
 # How to use this repo?
 Frankly your guess is as good as mine. We are engineers LARPING as programmers. You'll use this repo to source a NEW overlay separate from your code, which lets us work in one unified ROS-space to freely pusha and pull without touching the work in our original ~/ROB456/ros_ws/ folders.
-AI DISLOSURE: Gemini Asissted in the planning and writing of this document. Chat log is diclosed here for transparency: https://gemini.google.com/share/7a2185f3080c
+
+AI DISLOSURE: Google Gemini Asissted in the planning and writing of this document. Chat log is diclosed here for transparency: https://gemini.google.com/share/7a2185f3080c
 
 # ROB456 Final Project: Group Workspace
 
