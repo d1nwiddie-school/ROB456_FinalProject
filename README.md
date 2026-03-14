@@ -1,9 +1,21 @@
 # ROB456_FinalProject
 SLAMMageddon: the SLAMbulance, a SLAM, Bam, thank-you ma'am. Functional frontier exploration with ros2 and stage. 
 
+## Progress tracker:
+- [x] Initial Repo Setup & Overlay Structure
+- [x] Upload existing Lab 1 & Lab 2 code
+- [x] Complete `image_to_map`, `map_to_image` methods in `send_points.py`
+- [ ] transition `send_points` logic to 100% Frontier Expansion with zero hard-coding of points
+- [ ] Complete `map_callback` method (See Flowchart)
+- [ ] Rewrite Exploring.py to support morphological dilation method (faster, all-at-once testing) of free spaces on the map
+- [ ] confirm `is_free()` method tests OK against edge cases (penalize walls harder to prevent clipping)
+- [ ] Implement better progress checker in driver.py to cancel waypoint if not progressing
+- [ ] Final Stage simulation testing
+
 # How to use this repo?
 Frankly your guess is as good as mine. We are engineers LARPING as programmers. You'll use this repo to source a NEW overlay separate from your code, which lets us work in one unified ROS-space to freely pusha and pull without touching the work in our original ~/ROB456/ros_ws/ folders.
-AI DISLOSURE: Gemini Asissted in the planning and writing of this document. Chat log is diclosed here for transparency: https://gemini.google.com/share/7a2185f3080c
+
+AI DISLOSURE: Google Gemini Asissted in the planning and writing of this document. Chat log is diclosed here for transparency: https://gemini.google.com/share/7a2185f3080c
 
 # ROB456 Final Project: Group Workspace
 
@@ -79,3 +91,9 @@ To avoid command line errors, use the VS Code Source Control tab:
 * **"Package not found":** You forgot to run `source ~/ros_group_project/install/setup.bash`.
 * **Code changes aren't showing up:** Run `colcon build --symlink-install` again.
 * **Git Conflicts:** Use VS Code's "Merge Editor" to choose which version of the code to keep.
+
+---
+# System Data Flow
+Below are a few (mostly up to date) flow diagrams that help to organize data for us, and illustrate the function of our code to interested parties:
+![Send Points Data Flow](./Documentation/send_points_py_flow.png)
+
