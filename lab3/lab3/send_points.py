@@ -399,7 +399,7 @@ class SendPoints(Node):
 		"""Publishes the points in the list and links them up so they'll show up in RViz"""
 		self._set_goal_markers()
 
-	def from_map_to_image(self, map_msg : OccupancyGrid, pt_xy = (0.0, 0.0)):
+	def from_map_to_image(self, map_msg : OccupancyGrid, pt_xy = (0.0, 0.0)): # - MD
 		""" Convert from a point in the image to a point in the world
 		@param map_msg - the map
 		@param pt_xy - a tuple with an x,y in it
@@ -431,7 +431,7 @@ class SendPoints(Node):
 		self.get_logger().info(f"before {pt_xy} after {im_u}, {im_v}")
 		return (im_u, im_v)
 			
-	def from_image_to_map(self, map_msg : OccupancyGrid, pt_uv = (0, 0)):
+	def from_image_to_map(self, map_msg : OccupancyGrid, pt_uv = (0, 0)): # - MD
 		""" Convert from a point in the world to a point in the image
 		@param map_msg - the map
 		@param pt_uv - a tuple with a u,v in width/height in it
@@ -462,8 +462,9 @@ class SendPoints(Node):
 
 		return (pt_x, pt_y)
 
-	# TODO: michael stuff
+	# TODO: all of this big ole' jon right here - MD (who else talks like this lol)
 	def map_callback(self, map_msg : OccupancyGrid):
+		# both of these will change as our map updates:
 		""" Called when the map gets updated. Size etc of the map is in the message"""
 		self.get_logger().info(f"Got map size {(map_msg.info.width, map_msg.info.height)}, resolution {map_msg.info.resolution}")
 		self.get_logger().info(f" Origin origin {map_msg.info.origin.position}")
@@ -473,6 +474,7 @@ class SendPoints(Node):
 
 		# Reshape to (height, width)
 		im = im.reshape((map_msg.info.height, map_msg.info.width))
+		# ... THIS is wy we don't have to deal with the 1D scan and instead work in local image and world map frames
 
 		im_thresh = np.zeros(im.shape, dtype=np.uint8)
 
@@ -482,7 +484,6 @@ class SendPoints(Node):
 		im_thresh[im == -1] = 128   # Unknown
 
 		self.get_logger().info(f"N free {np.count_nonzero(im_thresh == 255)}, N walls {np.count_nonzero(im_thresh == 0)}, N {np.count_nonzero(im_thresh == 128)}")
-
 
 		# Location of robot
 		transform = self.tf_buffer.lookup_transform('odom', 'base_link', rclpy.time.Time(), timeout=rclpy.duration.Duration(seconds=1.0))
