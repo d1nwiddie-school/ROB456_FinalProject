@@ -117,14 +117,34 @@ def find_all_possible_goals(im):
     # YOUR CODE HERE
 
     possible_points = []
-
+    filter_threshold = 10 # this is a filter for selecting high-quality pixels to send to Dijkstra early.
+    # lower == more noise, more data.
+    # higher == less noise, less data.
+    # find a good middle ground! 
     for y in range(im.shape[0]):
         for x in range(im.shape[1]):
             pt = (x, y)
             if path_planning.is_unseen(im, pt) and is_reachable(im, pt):
-                possible_points.append(pt)
+            # Hey you! Don't delete this yet!! README! - MD
+            # we added a density check here!
+                point_neighborhood = im[y-2:y+3, x-2:x+3] 
+                unseen_points_in_neighborhood = (point_neighborhood == 128) # filter for where points are actually unseen (==128)
+                number_of_unseen_points = np.sum(unseen_points_in_neighborhood) # now sum how many of those points exist in the 5x5 square around pt = (x,y)
+                # now use this as a conditional:
+                if number_of_unseen_points >= filter_threshold:
+                    possible_points.append(pt)
+                # - MD
+                
 
+
+    # IMPORTANT NOTE RE: CULLING:
+    # there is a cheap and stupid way to handle this:
+    # possible_points = possible_points[0,-1, 10]
+    # just return every 10th point... 
+    # ... However Dijkstra is EXPENSIVE--if we prune here, we will have a much faster
+    # ... path-planning algorithm. There might
     return possible_points
+    
 
 
 def find_best_point(im, possible_points : list, robot_loc):

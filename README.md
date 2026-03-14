@@ -9,6 +9,7 @@ SLAMMageddon: the SLAMbulance, a SLAM, Bam, thank-you ma'am. Functional frontier
 - [ ] Complete `map_callback` method (See Flowchart)
 - [ ] Rewrite Exploring.py to support morphological dilation method (faster, all-at-once testing) of free spaces on the map
 - [ ] confirm `is_free()` method tests OK against edge cases (penalize walls harder to prevent clipping)
+- [ ] Implement culling on exploring.find_all_possible_goals() to prune bad items early
 - [ ] create "nudge" on driver.py first run to kickstart SLAM mapping (spin, wiggle, boogie, etc..)
 - [ ] Implement better progress checker in driver.py to cancel waypoint if not progressing
 - [ ] Final Stage simulation testing
