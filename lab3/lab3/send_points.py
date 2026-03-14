@@ -462,7 +462,7 @@ class SendPoints(Node):
 
 		return (pt_x, pt_y)
 
-	# TODO: all of this big ole' jon right here - MD (who else talks like this lol)
+	# TODO: all of this big ole' jon right here - MD
 	def map_callback(self, map_msg : OccupancyGrid):
 		# both of these will change as our map updates:
 		""" Called when the map gets updated. Size etc of the map is in the message"""
