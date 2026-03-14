@@ -493,26 +493,44 @@ class SendPoints(Node):
 		self.get_logger().info(f"Robot current location {robot_current_loc_in_map}")
 
 		# GUIDE: Change this to get just the points you might consider looking at and perhaps don't do it every time a map is made
-		all_unseen_pts = find_all_possible_goals(im_thresh)  # Your exploring code
-		# TODO: use the fast numpy method instead of looping, using:
-		# .. (im_u, img_v) as target list of (x,y) image locations which are now already 
-		# .. generated in robot_current_loc_in_image. (defined above)
+		# -------------------------------------- exploring.py methods ------------------------------------------#
+		all_unseen_pts = find_all_possible_goals(im_thresh)
+		# right now: this returns [(x0,y0), (x1,y2), ... (xN, yN)] for N possible points.
+		# NOTE: should we incorporate any kind of filter in this? Could we 
+		# ... "prune" early for any immediate walls? on early iterations with such a big frontier, 
+		# ... ... I'm guessing no, and a counter to wait for later iterations is just kinda janky.
 		
-		reachable_pts = []
+		reachable_pts = []  # this is just all_unseen_pts (which is in the map image frame) --> mapped to world frame.
 		for p in all_unseen_pts:
 			map_xy = self.from_image_to_map(map_msg=map_msg, pt_uv=p)
 			reachable_pts.append(map_xy)
 
+		# could we do something like (pseudo code):
+		# saveAs(previous map, ./map.pgm)
+		# saveAs (current map, ./new_map.pgm)
+		# if size(new_map.pgm - map.pgm) > threshold:
+		# 	reachable_pts = []  # this is just all_unseen_pts (which is in the map image frame) --> mapped to world frame.
+		# 	for p in all_unseen_pts:
+		# 		map_xy = self.from_image_to_map(map_msg=map_msg, pt_uv=p)
+		# 		reachable_pts.append(map_xy)
+		# else:
+		# 	pass # keep the loop going?
+
+
 		# This puts markers in RViz for all unseen points
 		self._set_reachable_markers(reachable_pts)
+		# ------------------------------------------------------------------------------------------------------#
 
+
+		# ----------------------------------- path_planning.py features -------------------------------------------#
 		# GUIDE: This is currently set up to call path planning every iteration (which is probably not what you want)
+		#   
 		#   If we're on the way to the current goal, path plan to the closest goal point that is reachable
 		#   If we're headed towards the last goal, get a goal from best_pt
 
 		# The final goal point in image coords
-		if len(self.goal_points) > 0:		
-			goal_loc_in_image = self.from_map_to_image(map_msg=map_msg, pt_xy=self.goal_points[-1])
+		if len(self.goal_points) > 0:
+			goal_loc_in_image = self.from_map_to_image(map_msg=map_msg, pt_xy=self.goal_points[-1]) 
 		else:
 			goal_loc_in_image = (map_msg.info.width // 2, map_msg.info.height // 2)
 
@@ -533,7 +551,7 @@ class SendPoints(Node):
 		# GUIDE: This calls dijkstra with the goal location and plots the path that you return in RViz
 		#  Note: If you did not fix your code to deal with an unreachable point then this will handle that case
 		#   as an exception
-		path_pts = []
+		path_pts = [] 
 		try:
 			path = dijkstra(im_thresh, robot_current_loc_in_image, goal_loc_in_image)
 			self.get_logger().info(f"Path {path}")	
@@ -553,6 +571,8 @@ class SendPoints(Node):
 					self.get_logger().info(f"Goal not free {robot_current_loc_in_image} to {goal_loc_in_image}")
 			else:
 				self.get_logger().info(f"Robot starting location not free {robot_current_loc_in_image}")
+		# ------------------------------------------------------------------------------------------------------#
+			
 
 		# GUIDE: This replaces the last goal if the robot has gone through the first two.
 		# THIS IS AN EXAMPLE of how to replace goal points. You can also use skip_current_goal and add_more_goal_points
