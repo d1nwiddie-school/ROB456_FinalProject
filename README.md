@@ -5,7 +5,11 @@ SLAMMageddon: the SLAMbulance, a SLAM, Bam, thank-you ma'am. Functional frontier
 - [x] Initial Repo Setup & Overlay Structure
 - [x] Upload existing Lab 1 & Lab 2 code
 - [x] Complete `image_to_map`, `map_to_image` methods in `send_points.py`
+- [ ] transition `send_points` logic to 100% Frontier Expansion with zero hard-coding of points
 - [ ] Complete `map_callback` method (See Flowchart)
+- [ ] Rewrite Exploring.py to support morphological dilation method (faster, all-at-once testing) of free spaces on the map
+- [ ] confirm `is_free()` method tests OK against edge cases (penalize walls harder to prevent clipping)
+- [ ] Implement better progress checker in driver.py to cancel waypoint if not progressing
 - [ ] Final Stage simulation testing
 
 # How to use this repo?
