@@ -493,6 +493,10 @@ class SendPoints(Node):
 
 		# GUIDE: Change this to get just the points you might consider looking at and perhaps don't do it every time a map is made
 		all_unseen_pts = find_all_possible_goals(im_thresh)  # Your exploring code
+		# TODO: use the fast numpy method instead of looping, using:
+		# .. (im_u, img_v) as target list of (x,y) image locations which are now already 
+		# .. generated in robot_current_loc_in_image. (defined above)
+		
 		reachable_pts = []
 		for p in all_unseen_pts:
 			map_xy = self.from_image_to_map(map_msg=map_msg, pt_uv=p)
