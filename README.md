@@ -1,6 +1,13 @@
 # ROB456_FinalProject
 SLAMMageddon: the SLAMbulance, a SLAM, Bam, thank-you ma'am. Functional frontier exploration with ros2 and stage. 
 
+## Progress tracker:
+- [x] Initial Repo Setup & Overlay Structure
+- [x] Upload existing Lab 1 & Lab 2 code
+- [x] Complete `image_to_map`, `map_to_image` methods in `send_points.py`
+- [ ] Complete `map_callback` method (See Flowchart)
+- [ ] Final Stage simulation testing
+
 # How to use this repo?
 Frankly your guess is as good as mine. We are engineers LARPING as programmers. You'll use this repo to source a NEW overlay separate from your code, which lets us work in one unified ROS-space to freely pusha and pull without touching the work in our original ~/ROB456/ros_ws/ folders.
 
@@ -82,7 +89,7 @@ To avoid command line errors, use the VS Code Source Control tab:
 * **Git Conflicts:** Use VS Code's "Merge Editor" to choose which version of the code to keep.
 
 ---
-# System Data FLOw
+# System Data Flow
 Below are a few (mostly up to date) flow diagrams that help to organize data for us, and illustrate the function of our code to interested parties:
-[Send Points Data Flow](./Documentation/send_points_py_flow.png)
+![Send Points Data Flow](./Documentation/send_points_py_flow.png)
 
