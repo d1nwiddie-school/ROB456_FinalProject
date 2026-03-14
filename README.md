@@ -80,3 +80,9 @@ To avoid command line errors, use the VS Code Source Control tab:
 * **"Package not found":** You forgot to run `source ~/ros_group_project/install/setup.bash`.
 * **Code changes aren't showing up:** Run `colcon build --symlink-install` again.
 * **Git Conflicts:** Use VS Code's "Merge Editor" to choose which version of the code to keep.
+
+---
+# System Data FLOw
+Below are a few (mostly up to date) flow diagrams that help to organize data for us, and illustrate the function of our code to interested parties:
+[Send Points Data Flow](./Documentation/send_points_py_flow.png)
+
