@@ -101,12 +101,12 @@ class Lab3Driver(Node):
 		self.target.point.y = 0.0
 
 		# GUIDE: Declare any variables here
- 		# YOUR CODE HERE
-		# 1: start by putting 
+		self.rob_width = 0.2
 
 		# Timer to make sure we publish the target marker (once we get a goal)
 		self.marker_timer = self.create_timer(1.0, self._marker_callback)
 
+		self.count_since_last_scan = 0
 		self.print_twist_messages = False
 		self.print_distance_messages = False
 
@@ -133,6 +133,7 @@ class Lab3Driver(Node):
 				self.target_marker.action = Marker.DELETE
 				self.target_pub.publish(self.target_marker)
 				self.target_marker = None
+				self.get_logger().info(f"Driver: Had an existing target marker; removing")
 			return
 		
 		# If we do not currently have a marker, make one
@@ -140,6 +141,8 @@ class Lab3Driver(Node):
 			self.target_marker = Marker()
 			self.target_marker.header.frame_id = self.goal.header.frame_id
 			self.target_marker.id = 0
+		
+			self.get_logger().info(f"Driver: Creating Marker")
 
 		# Build a marker for the target point
 		#   - this prints out the green dot in RViz (the current target)
@@ -191,8 +194,9 @@ class Lab3Driver(Node):
 	def close_enough(self):
 		""" Return true if close enough to goal. This will be used in action_callback to stop moving toward the goal
 		@ return true/false """
-
-  # YOUR CODE HERE
+		
+		if self.distance_to_target() < self.threshold:
+			return True
 		return False
 
 	def distance_to_target(self):
@@ -216,18 +220,14 @@ class Lab3Driver(Node):
 		result = NavTarget.Result()
 		result.success = False
 
-		# TODO: if we get stuck for too long, tell the server to send us a new target
-		# ... this is for lab3 where the points will NOT be magic, discrete little dots 
-
 		# Reset target
 		self.set_target()
 
 		# Keep publishing feedback, then sleeping (so the laser scan can happen)
-		# GUIDE for Lab3: If you aren't making progress, stop the while loop and mark the goal as failed
+		# GUIDE: If you aren't making progress, stop the while loop and mark the goal as failed
 		rate = self.create_rate(0.5)
 		while not self.close_enough():
 			if not self.goal:
-				# GUIDE: This will get called in lab 3 if you cancel a goal
 				self.get_logger().info(f"Goal was canceled")
 
 				return result
@@ -308,6 +308,8 @@ class Lab3Driver(Node):
 	
 		if self.print_twist_messages:
 			self.get_logger().info("In scan callback")
+		# Got a scan - set back to zero
+		self.count_since_last_scan = 0
 
 		# If we have a goal, then act on it, otherwise stay still
 		if self.goal:
@@ -335,9 +337,32 @@ class Lab3Driver(Node):
 		
 		# GUIDE: Use this method to collect obstacle information - is something in front of, to the left, or to 
 		# the right of the robot? Start with your stopper code from Lab1
-  # YOUR CODE HERE
-		return False, 0.0, 0.0
 
+		### Charged particle navigation
+		#This implementation kinda sucks but it works and I'm afraid to change anything else - Andrew B
+		#If I we time I will clean it up
+		angle_min = scan.angle_min
+		angle_max = scan.angle_max
+		num_readings = len(scan.ranges)
+		d_theta = (angle_max - angle_min) / num_readings #calc spread of lasers
+
+		theta_scans = np.arange(angle_min , angle_max, d_theta) #obtain scan angle from robot POV
+		scan_ranges = np.array(scan.ranges) #ensure scan ranges is numpy array
+		
+		scan_y = (np.sin(theta_scans) * scan_ranges)
+		scan_x = (np.cos(theta_scans) * scan_ranges)
+
+		if theta_scans.any:
+			
+			shortest = min(scan_x[(abs(scan_y) < (self.rob_width))])
+			omega_mag_like =  1 / ((scan_ranges[np.where(np.absolute(theta_scans) > (1/10**2))])**2 * np.sin(theta_scans[np.where(np.absolute(theta_scans) > (1/10**2))]))
+			omega_mag_like = np.average(omega_mag_like)
+			F_mag_like_front = 1 / (shortest)**2
+
+			return True, omega_mag_like, F_mag_like_front
+		else:
+			return False, 0, 0
+		
 	def get_twist(self, scan):
 		"""This is the method that calculate the twist
 		@param scan - a LaserScan message with the current data from the LiDAR.  Use this for obstacle avoidance. 
@@ -345,24 +370,35 @@ class Lab3Driver(Node):
 		@return a twist command"""
 		t = self.zero_twist()
 
-		# GUIDE:
-		#  Step 1) Calculate the angle the robot has to turn to in order to point at the target
-		#  Step 2) Set your speed based on how far away you are from the target, as before
-		#  Step 3) Add code that veers left (or right) to avoid an obstacle in front of it
-		# Reminder: t.linear.x = 0.1    sets the forward speed to 0.1
-		#           t.angular.z = pi/2   sets the angular speed to 90 degrees per sec
-		# Reminder 2: target is in self.target 
-		#  Note: If the target is behind you, might turn first before moving
-		#  Note: 0.4 is a good speed if nothing is in front of the robot
-
 		min_speed = 0.05
-		max_speed = 0.2         # This moves about 0.01 m between scans
+		max_speed = 0.4        # This moves about 0.01 m between scans
 		max_turn = np.pi * 0.1  # This turns about 2 degrees between scans
 
-  # YOUR CODE HERE
 
-		# t.twist.linear.x = max_speed
-		# t.twist.angular.z = 0.0
+		obst_check, omeg_mag_like, F_mag_like = self.get_obstacle(scan)
+
+		target_x = self.target.point.x
+		target_y = self.target.point.y
+
+		theta_to_target = np.arctan2(target_y, target_x)
+		dist_to_target = self.distance_to_target()
+
+		#Unfortunately lots of magic numberss here
+		#at this point the behavior is quite nice so I am afraid to change anything
+		#Will simplify this part if time permits
+		#Essentially lots of terms combine destructively or constructively to create the behavior
+		#of magnet-like interactions so "forces" fall of at long ranges and go to infinity at close ranges 
+		
+		if F_mag_like > (1/dist_to_target**2): #This prevents obstacles behind target from pushing robot off the target
+			throttle = np.tanh(dist_to_target) - np.tanh(F_mag_like - (1/dist_to_target**2))
+		else:
+			throttle = np.tanh(dist_to_target)/np.cosh(theta_to_target)
+		
+		rotation_throttle = np.tanh((2*np.sin(theta_to_target)) - np.sinh(omeg_mag_like))
+
+		t.twist.linear.x = throttle * max_speed
+		t.twist.angular.z = rotation_throttle * max_turn
+
 		if self.print_twist_messages:
 			self.get_logger().info(f"Setting twist forward {t.twist.linear.x} angle {t.twist.angular.z}")
 		return t			
