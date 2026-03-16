@@ -102,7 +102,8 @@ class Lab3Driver(Node):
 
 		# GUIDE: Declare any variables here
 		self.rob_width = 0.2
-
+		self.shortest_distance = 10000
+		self.timeout_counter = 0
 		# Timer to make sure we publish the target marker (once we get a goal)
 		self.marker_timer = self.create_timer(1.0, self._marker_callback)
 
@@ -194,9 +195,22 @@ class Lab3Driver(Node):
 	def close_enough(self):
 		""" Return true if close enough to goal. This will be used in action_callback to stop moving toward the goal
 		@ return true/false """
-		
-		if self.distance_to_target() < self.threshold:
+		#print(self.timeout_counter)
+		distance_to_target = self.distance_to_target()
+		if distance_to_target < self.threshold:
+			self.shortest_distance = 10000
+			self.timeout_counter = 0
 			return True
+		elif distance_to_target < self.shortest_distance:
+			self.timeout_counter = 0
+			self.shortest_distance = distance_to_target
+		else:
+			self.timeout_counter += 1
+			if self.timeout_counter > 25:
+				self.shortest_distance = 10000
+				self.timeout_counter = 0
+				self.goal = None
+
 		return False
 
 	def distance_to_target(self):
@@ -227,6 +241,7 @@ class Lab3Driver(Node):
 		# GUIDE: If you aren't making progress, stop the while loop and mark the goal as failed
 		rate = self.create_rate(0.5)
 		while not self.close_enough():
+			print (self.timeout_counter)
 			if not self.goal:
 				self.get_logger().info(f"Goal was canceled")
 
