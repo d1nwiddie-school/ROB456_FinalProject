@@ -464,6 +464,7 @@ class SendPoints(Node):
 
 	# TODO: all of this big ole' jon right here - MD
 	def map_callback(self, map_msg : OccupancyGrid):
+        
 		# both of these will change as our map updates:
 		""" Called when the map gets updated. Size etc of the map is in the message"""
 		self.get_logger().info(f"Got map size {(map_msg.info.width, map_msg.info.height)}, resolution {map_msg.info.resolution}")
@@ -579,7 +580,7 @@ class SendPoints(Node):
 		if self.completed_all_goals():		
 			self.get_logger().info(f"Replacing way points with new ones {path_pts}")	
 			self.replace_goal_points(path_pts, False)
-
+    
 
 # Unlike all the previous code, here we'll start up with a list of points to go to
 def main(args=None):
