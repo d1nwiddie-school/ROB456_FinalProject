@@ -93,6 +93,13 @@ class SendPoints(Node):
 		self.path_marker_pub = self.create_publisher(MarkerArray, 'path_points', 1)
 		self.reachable_marker_pub = self.create_publisher(MarkerArray, 'reachable_points', 1)
 
+		# some additional tracking vars for map_callback():
+		self.map_seen_once = False
+		self.map_callback_count = 0
+		self.map_replan = 8
+		# track previously unmapped regions:
+		self.tried_goal_points = []
+		self.tried_goal_radius = 12
 
 	def _start_action_client(self):
 		""" This gets called by the timer whenever a new set of goals needs to be kicked off"""
