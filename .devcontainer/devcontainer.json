@@ -1,18 +1,11 @@
 {
-    "name": "ROB456 Lab 3 Kilted Environment",
-    "build": {
-        "dockerfile": "Dockerfile"
-    },
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "ms-python.python",
-                "ms-iot.vscode-ros",
-                "ms-vscode.live-share"
-            ]
+    "name": "Plain Ubuntu for ROB456",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "installZsh": true,
+            "configureZshAsDefaultShell": true
         }
     },
-    "forwardPorts": [6080],
-    "postCreateCommand": "cd ~/ros_ws && colcon build --symlink-install && source install/setup.bash",
-    "remoteUser": "vscode"
+    "forwardPorts": [6080]
 }
