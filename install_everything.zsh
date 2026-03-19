@@ -20,6 +20,7 @@ sudo apt install libfltk1.3-dev libjpeg-dev libltdl-dev pkg-config libpng-dev li
 
 # 4. REQUIRED MESSAGE PACKAGES
 sudo apt install ros-kilted-marker-msgs ros-kilted-ackermann-msgs ros-kilted-rmw-zenoh-cpp -y
+sudo apt update && sudo apt install ros-kilted-slam-toolbox -y
 
 # 5. WAKE UP GLOBAL ROS (CRITICAL FIX)
 # This allows colcon to find ament_cmake for your lab packages

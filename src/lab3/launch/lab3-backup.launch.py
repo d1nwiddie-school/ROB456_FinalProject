@@ -1,31 +1,28 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import os
+
 from ament_index_python.packages import get_package_share_directory
+
 
 # Functions needed to setup launch commands
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, ExecuteProcess, OpaqueFunction, SetLaunchConfiguration
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.substitutions import LaunchConfiguration, TextSubstitution
 from launch.conditions import IfCondition
+from launch.actions import DeclareLaunchArgument, OpaqueFunction, SetLaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
+
 def generate_launch_description():
-    # This is your "To-Do List" object
+
+    # Fill this in as we go
     ld = LaunchDescription()
 
-    # --- 1. THE ZENOH ROUTER ---
-    # We add this first so the "Post Office" is open for the other nodes
-    zenoh_router = ExecuteProcess(
-        cmd=['ros2', 'run', 'rmw_zenoh_cpp', 'rmw_zenohd'],
-        output='screen'
-    )
-    ld.add_action(zenoh_router)
-
-    # --- 2. EXISTING STAGE & ENVIRONMENT CONFIG ---
     rob_stage_directory = get_package_share_directory('rob_stage')
 
+    # This is a stage parameter - use Twist or TwistStamped. We're going to use the latter
     use_stamped_velocity = LaunchConfiguration('use_stamped_velocity')
     use_stamped_velocity_arg = DeclareLaunchArgument(
         'use_stamped_velocity',
@@ -61,6 +58,7 @@ def generate_launch_description():
         description='on true all times are sim times')
     ld.add_action(use_sim_time_arg)
 
+     # If using stage world only, this is where cave lives
     stage_world_arg = DeclareLaunchArgument(
         'world',
         default_value=TextSubstitution(text='simple'),
@@ -77,9 +75,6 @@ def generate_launch_description():
     rob_stage_world_configuration_arg = OpaqueFunction(function=rob_stage_world_configuration)
     ld.add_action(rob_stage_world_configuration_arg)
 
-    # --- 3. THE NODES ---
-
-    # Stage Simulator Node
     stage_node = Node(
             package='stage_ros2',
             executable='stage_ros2',
@@ -93,7 +88,6 @@ def generate_launch_description():
         )
     ld.add_action(stage_node)    
 
-    # RViz Node
     launch_rviz = LaunchConfiguration('launch_rviz')
     launch_rviz_arg = DeclareLaunchArgument(
         'launch_rviz',
@@ -102,6 +96,7 @@ def generate_launch_description():
     ld.add_action(launch_rviz_arg)
 
     rviz_config_file = os.path.join(get_package_share_directory("lab3"), 'config', 'driver.rviz')
+
     rviz_node = Node(
         package="rviz2",
         condition=IfCondition(LaunchConfiguration("launch_rviz")),
@@ -112,18 +107,26 @@ def generate_launch_description():
     )
     ld.add_action(rviz_node)
 
-    # SLAM Toolbox Integration
+    # Define the path to the package containing the included launch file
     slam_share_directory = get_package_share_directory('slam_toolbox')
-    slam_config_file = os.path.join(get_package_share_directory("lab3"), 'config', 'slam_mapping.yaml')
-    slam_launch_file_path = os.path.join(slam_share_directory, 'launch', 'online_async_launch.py')
 
+    # Our config file
+    slam_config_file = os.path.join(get_package_share_directory("lab3"), 'config', 'slam_mapping.yaml')
+
+    # Define the path to the launch file to be included
+    slam_launch_file_path = os.path.join(
+        slam_share_directory,
+        'launch',
+        'online_async_launch.py'
+    )
+
+    # Create an IncludeLaunchDescription action to include the SLAM launch file
     slam_included_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([slam_launch_file_path]),
         launch_arguments={'slam_params_file':slam_config_file}.items()
     )
     ld.add_action(slam_included_launch)
 
-    # Lab 3 Specific Nodes
     send_points_node = Node(
         package="lab3",
         executable="send_points"
@@ -134,6 +137,7 @@ def generate_launch_description():
         package="lab3",
         executable="driver"
     )
+
     ld.add_action(driver_node)
 
     return ld
