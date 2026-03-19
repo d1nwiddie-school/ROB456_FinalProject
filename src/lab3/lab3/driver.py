@@ -112,6 +112,13 @@ class Lab3Driver(Node):
 		self.print_twist_messages = False
 		self.print_distance_messages = False
 
+		# new vars to nudge the bot at runtime:
+		self.doing_startup_nudge = True
+		self.nudge_started = False
+		self.nudge_start_time = None
+		self.nudge_angular_speed = 0.5
+		self.nudge_duration = (2.0 * np.pi) / self.nudge_angular_speed
+
 	def zero_twist(self):
 		"""This is a helper class method to create and zero-out a twist"""
 		# Don't really need to do this - the default values are zero - but can't hurt
@@ -223,6 +230,10 @@ class Lab3Driver(Node):
 		""" This gets called when the new goal is sent by SendPoints
 		@param goal_handle - this has the new goal
 		@return a NavTarget return when done """
+		# first, check to see if we should nudge, and then nudge if needed:
+		if self.doing_startup_nudge:
+			self.startup_nudge_step()
+			return
 
 		self.get_logger().info(f'Received an execute goal request... {goal_handle.request.goal.point}')
 	
@@ -314,9 +325,31 @@ class Lab3Driver(Node):
 		
 		# GUIDE: Calculate any additional variables here
 		#  Remember that the target's location is in its own coordinate frame at 0,0, angle 0 (x-axis)
-  # YOUR CODE HERE
+ 		 # YOUR CODE HERE
 
 		return self.target
+
+	# nudge function: spin around, document what you see:
+	def startup_nudge_step(self):
+		twist = Twist()
+
+		if not self.nudge_started:
+			self.nudge_started = True
+			self.nudge_start_time = time.time()
+
+		elapsed = time.time() - self.nudge_start_time
+
+		if elapsed < self.nudge_duration:
+			twist.linear.x = 0.0
+			twist.angular.z = self.nudge_angular_speed
+			self.cmd_vel_pub.publish(twist)
+			return False   # not done yet
+
+		twist.linear.x = 0.0
+		twist.angular.z = 0.0
+		self.cmd_vel_pub.publish(twist)
+		self.doing_startup_nudge = False
+		return True
 
 	def scan_callback(self, scan):
 		""" Lidar scan callback
