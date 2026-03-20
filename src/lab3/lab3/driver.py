@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 
 # Bill Smart, smartw@oregonstate.edu
-# this comment solves the whole thing
-# rossin time
+#
 # driver.py
-# Testing Testing 123
 # Drive the robot towards a goal, going around an object
 
-# one more
+
 # Every Python node in ROS2 should include these lines.  rclpy is the basic Python
 # ROS2 stuff, and Node is the class we're going to use to set up the node.
 import rclpy
@@ -61,7 +59,7 @@ class Lab3Driver(Node):
 		# Goal will be set later. The action server will set the goal; you don't set it directly
 		self.goal = None
 		# A controllable parameter for how close you have to be to the goal to say "I'm there"
-		self.threshold = threshold
+		self.threshold = 3 * threshold
 
 		# Make a Marker to put in RViz to show the current goal/target the robot is aiming for
 		self.target_marker = None
@@ -112,13 +110,6 @@ class Lab3Driver(Node):
 		self.count_since_last_scan = 0
 		self.print_twist_messages = False
 		self.print_distance_messages = False
-
-		# new vars to nudge the bot at runtime:
-		self.doing_startup_nudge = True
-		self.nudge_started = False
-		self.nudge_start_time = None
-		self.nudge_angular_speed = 0.5
-		self.nudge_duration = (2.0 * np.pi) / self.nudge_angular_speed
 
 	def zero_twist(self):
 		"""This is a helper class method to create and zero-out a twist"""
@@ -215,7 +206,7 @@ class Lab3Driver(Node):
 			self.shortest_distance = distance_to_target
 		else:
 			self.timeout_counter += 1
-			if self.timeout_counter > 25:
+			if self.timeout_counter > 10:
 				self.shortest_distance = 10000
 				self.timeout_counter = 0
 				self.goal = None
@@ -231,10 +222,6 @@ class Lab3Driver(Node):
 		""" This gets called when the new goal is sent by SendPoints
 		@param goal_handle - this has the new goal
 		@return a NavTarget return when done """
-		# first, check to see if we should nudge, and then nudge if needed:
-		if self.doing_startup_nudge:
-			self.startup_nudge_step()
-			return
 
 		self.get_logger().info(f'Received an execute goal request... {goal_handle.request.goal.point}')
 	
@@ -326,31 +313,9 @@ class Lab3Driver(Node):
 		
 		# GUIDE: Calculate any additional variables here
 		#  Remember that the target's location is in its own coordinate frame at 0,0, angle 0 (x-axis)
- 		 # YOUR CODE HERE
+  # YOUR CODE HERE
 
 		return self.target
-
-	# nudge function: spin around, document what you see:
-	def startup_nudge_step(self):
-		twist = Twist()
-
-		if not self.nudge_started:
-			self.nudge_started = True
-			self.nudge_start_time = time.time()
-
-		elapsed = time.time() - self.nudge_start_time
-
-		if elapsed < self.nudge_duration:
-			twist.linear.x = 0.0
-			twist.angular.z = self.nudge_angular_speed
-			self.cmd_vel_pub.publish(twist)
-			return False   # not done yet
-
-		twist.linear.x = 0.0
-		twist.angular.z = 0.0
-		self.cmd_vel_pub.publish(twist)
-		self.doing_startup_nudge = False
-		return True
 
 	def scan_callback(self, scan):
 		""" Lidar scan callback

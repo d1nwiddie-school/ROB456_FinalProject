@@ -100,7 +100,7 @@ class SendPoints(Node):
 
 		# Tracks previously attempted unmapped regions
 		self.tried_goal_points = []
-		self.tried_goal_radius = 12
+		self.tried_goal_radius = 15
 
 
 	def _start_action_client(self):
@@ -522,6 +522,9 @@ class SendPoints(Node):
 					break
 			if not already_tried:
 				filtered_unseen_pts.append(p)
+
+		if filtered_unseen_pts == []:
+			self.get_logger().info(f"Mapping Complete")
 
 		reachable_pts = []  # this is just all_unseen_pts (which is in the map image frame) --> mapped to world frame.
 		for p in all_unseen_pts:
