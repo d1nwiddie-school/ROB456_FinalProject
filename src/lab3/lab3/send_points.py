@@ -33,13 +33,12 @@ from lab3.path_planning import dijkstra, is_free
 from lab3.exploring import find_all_possible_goals, find_best_point, find_waypoints
 # TODO: potentially convert exploring.py methods to NP? I'm fine with slowness if it runs, will put
 # ... expected datastructures in each method here as I call them for your reference. - MD
-
+# ... DONE!  - Thanks, Andrew!
 
 class SendPoints(Node):
 	def __init__(self, points):
 		""" Initialize way points
 		@param - points, an iterable list of x,y tuples"""
-		# points come from DIJSKTRA... probably. -MD 
 
 		# Initialize the parent class, giving it a name.  The idiom is to use the
 		# super() class.
@@ -473,7 +472,7 @@ class SendPoints(Node):
 		return (pt_x, pt_y)
 
 	# TODO: all of this big ole' jon right here - MD
-	# I think I got this now lol
+	# I think I got this now lol - Marcus
 	def map_callback(self, map_msg : OccupancyGrid):
 		self.map_callback_count += 1
 
@@ -608,6 +607,9 @@ class SendPoints(Node):
 			path = dijkstra(im_thresh, robot_current_loc_in_image, goal_loc_in_image)
 			self.get_logger().info(f"Path {path}")	
 			path_waypoints = find_waypoints(im_thresh, path)
+			# NOT pulling from a PGM as discussed prior since the method natively handles
+			# ... images in data memory, there's no need to waste time and make a failure point
+			# ... by downloading a .PGM every time the map updates... if you want, throw it at the end with a happy dance and prompt the user to save a finished map
 			self.get_logger().info(f"Path waypoints {path_waypoints}")	
 			for p in path_waypoints:
 				map_xy = self.from_image_to_map(map_msg=map_msg, pt_uv=p)
