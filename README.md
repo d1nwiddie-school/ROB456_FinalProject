@@ -6,10 +6,10 @@ SLAMMageddon: the SLAMbulance, a SLAM, Bam, thank-you ma'am. Functional frontier
 - [x] Upload existing Lab 1 & Lab 2 code
 - [x] Complete `image_to_map`, `map_to_image` methods in `send_points.py`
 - [x] transition `send_points` logic to 100% Frontier Expansion with zero hard-coding of points
-- [ ] Complete `map_callback` method (See Flowchart)
-- [ ] Rewrite Exploring.py to support morphological dilation method (faster, all-at-once testing) of free spaces on the map
+- [x] Complete `map_callback` method (See Flowchart)
+- [x] Rewrite Exploring.py to support morphological dilation method (faster, all-at-once testing) of free spaces on the map
 - [ ] confirm `is_free()` method tests OK against edge cases (penalize walls harder to prevent clipping)
-- [ ] Implement culling on exploring.find_all_possible_goals() to prune bad items early
+- [x] Implement culling on exploring.find_all_possible_goals() to prune bad items early
 - [ ] create "nudge" on driver.py first run to kickstart SLAM mapping (spin, wiggle, boogie, etc..)
 - [ ] Implement better progress checker in driver.py to cancel waypoint if not progressing
 - [ ] Final Stage simulation testing
