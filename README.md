@@ -10,9 +10,9 @@ SLAMMageddon: the SLAMbulance, a SLAM, Bam, thank-you ma'am. Functional frontier
 - [x] Rewrite Exploring.py to support morphological dilation method (faster, all-at-once testing) of free spaces on the map
 - [ ] confirm `is_free()` method tests OK against edge cases (penalize walls harder to prevent clipping)
 - [x] Implement culling on exploring.find_all_possible_goals() to prune bad items early
-- [ ] create "nudge" on driver.py first run to kickstart SLAM mapping (spin, wiggle, boogie, etc..)
-- [ ] Implement better progress checker in driver.py to cancel waypoint if not progressing
-- [ ] Final Stage simulation testing
+- [x] create "nudge" on driver.py first run to kickstart SLAM mapping (spin, wiggle, boogie, etc..)
+- [x] Implement better progress checker in driver.py to cancel waypoint if not progressing
+- [x] Final Stage simulation testing
 
 # How to use this repo?
 Frankly your guess is as good as mine. We are engineers LARPING as programmers. You'll use this repo to source a NEW overlay separate from your code, which lets us work in one unified ROS-space to freely pusha and pull without touching the work in our original ~/ROB456/ros_ws/ folders.
